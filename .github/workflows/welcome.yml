@@ -1,23 +1,15 @@
-name: Learning GitHub Script
+name: Post welcome comment
 on:
-  issues:
+  pull_request:
     types: [opened]
+permissions:
+  pull-requests: write
 jobs:
-  comment:
+  welcome:
+    name: Post welcome comment
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/github-script@0.8.0
-      with:
-        github-token: {% raw %}${{secrets.GITHUB_TOKEN}}{% endraw %}
-        script: |
-            github.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: "🎉 You've created this issue comment using GitHub Script!!!"
-            })
-            github.projects.createCard({
-            column_id: {{columnID}},
-            content_id: context.payload.issue.id,
-            content_type: "Issue"
-            });
+      - run: gh pr comment "$PR_URL" --body "Welcome to the repository!"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
